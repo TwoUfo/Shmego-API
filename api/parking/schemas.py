@@ -11,3 +11,12 @@ def get_car_model(api):
             "owner": fields.String(),
         },
     )
+
+def get_parking_spot_model(api):
+    return api.model(
+        "ParkingSpot",
+        {
+            "number": fields.String(),
+            "is_occupied": fields.Boolean(),
+        },
+    )
