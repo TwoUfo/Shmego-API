@@ -9,9 +9,11 @@ class Car(db.Model):
     model = db.Column(db.String(50))
     owner = db.Column(db.String(100))
 
+
 class ParkingSpot(db.Model):
     number = db.Column(db.Integer, primary_key=True)
     is_occupied = db.Column(db.Boolean, default=False)
+
 
 class ParkingSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
