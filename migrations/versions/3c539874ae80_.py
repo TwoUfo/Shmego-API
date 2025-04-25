@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c47fa5b80fb6
+Revision ID: 3c539874ae80
 Revises: 
-Create Date: 2025-04-24 14:53:20.443719
+Create Date: 2025-04-25 13:03:15.207723
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c47fa5b80fb6'
+revision = '3c539874ae80'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,13 +32,13 @@ def upgrade():
     )
     op.create_table('parking_session',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('car_id', sa.String(length=20), nullable=True),
-    sa.Column('spot_id', sa.Integer(), nullable=True),
+    sa.Column('car_license_plate', sa.String(length=20), nullable=True),
+    sa.Column('spot_number', sa.Integer(), nullable=True),
     sa.Column('check_in_time', sa.DateTime(), nullable=True),
     sa.Column('check_out_time', sa.DateTime(), nullable=True),
     sa.Column('cost', sa.Float(), nullable=True),
-    sa.ForeignKeyConstraint(['car_id'], ['car.license_plate'], ),
-    sa.ForeignKeyConstraint(['spot_id'], ['parking_spot.number'], ),
+    sa.ForeignKeyConstraint(['car_license_plate'], ['car.license_plate'], ),
+    sa.ForeignKeyConstraint(['spot_number'], ['parking_spot.number'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

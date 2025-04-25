@@ -1,5 +1,6 @@
-from api.parking.errors import SessionAlreadyCheckedOut
-from utils.constants import MSG_ALREADY_CHECKED_OUT
+from api.parking.errors import SessionAlreadyCheckedOut, ObjectNotFound, SpotAlreadyOccupied
+from utils.constants import MSG_ALREADY_CHECKED_OUT, ERR_OBJECT_NOT_FOUND, ERR_SPOT_OCCUPIED
+from api import db
 
 def calculate_cost(check_out_time, check_in_time):
     """
@@ -23,3 +24,13 @@ def calculate_cost(check_out_time, check_in_time):
 def check_session_status(session):
     if session.check_out_time is not None:
         raise SessionAlreadyCheckedOut(MSG_ALREADY_CHECKED_OUT, 400)
+    
+
+def check_object_exists(obj, type_name):
+    if obj is None:
+        raise ObjectNotFound(ERR_OBJECT_NOT_FOUND, type_name, 404)
+
+
+def check_is_spot_occupied(spot):
+    if spot.is_occupied:
+        raise SpotAlreadyOccupied(ERR_SPOT_OCCUPIED, 400)

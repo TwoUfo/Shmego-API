@@ -1,6 +1,7 @@
 # Car messages
 MSG_CAR_ADDED = "Car added"
 MSG_CAR_UPDATED = "Car updated"
+ERR_CAR_EXISTS = "Car already exists"
 
 # Spot messages
 MSG_SPOT_ADDED = "Parking spot added"
@@ -14,6 +15,9 @@ MSG_CHECKED_OUT_SUCCESS = "Checked out successfully."
 
 # Keys
 KEY_ID = "id"
+KEY_CAR = "Car with license plate '{}'"
+KEY_SPOT = "Spot with number '{}'"
+KEY_SESSION = "Session with car license plate '{}'"
 KEY_OWNER = "owner"
 KEY_LICENSE_PLATE = "license_plate"
 KEY_BRAND = "brand"
@@ -31,3 +35,8 @@ KEY_CAR_LICENSE_PLATE = "car_license_plate"
 KEY_SPOT_NUMBER = "spot_number"
 KEY_ERROR = "error_message"
 KEY_DURATION_HOURS = "duration_hours"
+KEY_CHECK_IN = "check_in"
+KEY_CHECK_OUT = "check_out"
+
+# Other
+ERR_OBJECT_NOT_FOUND = "Object {} not found"
