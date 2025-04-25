@@ -12,6 +12,7 @@ def get_car_model(api):
         },
     )
 
+
 def get_parking_spot_model(api):
     return api.model(
         "ParkingSpot",
@@ -20,7 +21,8 @@ def get_parking_spot_model(api):
             "is_occupied": fields.Boolean(),
         },
     )
-    
+
+
 def get_session_model(api):
     return api.model(
         "ParkingSession",

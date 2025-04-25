@@ -1,4 +1,4 @@
-from flask import make_response, jsonify
+from flask import jsonify, make_response
 
 
 def response(message: str = None, data: dict = None, status_code: int = 200) -> dict:
@@ -6,7 +6,7 @@ def response(message: str = None, data: dict = None, status_code: int = 200) -> 
     Function to create a standardized response format for API responses.
 
     Args:
-        
+
         message (str): Message to be included in the response.
         data (dict, optional): Additional data to be included in the response. Defaults to None.
         status_code (int): HTTP status code.
