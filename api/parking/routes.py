@@ -160,9 +160,14 @@ class SessionsCheckIn(Resource):
         try:
             data = request.get_json()
             number=data.get(KEY_SPOT_NUMBER)
+            license_plate = data.get(KEY_CAR_LICENSE_PLATE)
+            
+            car = Car.query.filter_by(license_plate=license_plate).first()
             spot = ParkingSpot.query.filter_by(number=number).first()
             
             check_object_exists(spot, KEY_SPOT.format(number))
+            check_object_exists(car, KEY_CAR.format(license_plate))
+            
             check_is_spot_occupied(spot)
 
             new_session = ParkingSession(
