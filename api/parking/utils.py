@@ -11,7 +11,7 @@ from utils.constants import (
 )
 
 
-def calculate_cost(check_out_time, check_in_time):
+def calculate_cost(check_out_time, check_in_time, price):
     """
     Calculate the parking cost based on the check-in and check-out times.
     The cost is calculated at a rate of 25 UAH per hour, with a minimum charge of 1 hour.
@@ -23,9 +23,10 @@ def calculate_cost(check_out_time, check_in_time):
     Returns:
         tuple: A tuple containing the cost and the duration in hours.
     """
+    
     duration = check_out_time - check_in_time
     hours = max(1, int(duration.total_seconds() // 3600))
-    cost = hours * 25
+    cost = hours * price
 
     return cost, hours
 

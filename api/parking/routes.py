@@ -24,14 +24,30 @@ from utils.constants import *
 
 @ns.route("/cars")
 class Cars(Resource):
+    @ns.param(
+        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
+    )
+    @ns.param(
+        PER_PAGE,
+        type=int,
+        default=PER_PAGE_DEFAULT,
+        description="Number of results per page.",
+    )
     def get(self):
-        cars = Car.query.all()
+        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
+        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
+        
+        pagination = Car.query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        cars = pagination.items
         data = [
             {KEY_LICENSE_PLATE: car.license_plate, KEY_OWNER: car.owner} for car in cars
         ]
 
         return response(data=data, status_code=200)
-
+    
+    
+    
     @ns.expect(get_car_model(ns))
     def post(self):
         try:
@@ -86,10 +102,24 @@ class CarDetail(Resource):
 
 @ns.route("/spots")
 class ParkingSpots(Resource):
+    @ns.param(
+        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
+    )
+    @ns.param(
+        PER_PAGE,
+        type=int,
+        default=PER_PAGE_DEFAULT,
+        description="Number of results per page.",
+    )
     def get(self):
-        spots = ParkingSpot.query.all()
+        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
+        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
+        
+        pagination = ParkingSpot.query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        spots = pagination.items
         data = [
-            {KEY_NUMBER: spot.number, KEY_IS_OCCUPIED: spot.is_occupied}
+            {KEY_NUMBER: spot.number, KEY_IS_OCCUPIED: spot.is_occupied, KEY_VIP: spot.vip}
             for spot in spots
         ]
         return response(data=data, status_code=200)
@@ -101,6 +131,7 @@ class ParkingSpots(Resource):
             new_spot = ParkingSpot(
                 number=data.get(KEY_NUMBER),
                 is_occupied=data.get(KEY_IS_OCCUPIED, False),
+                vip=data.get(KEY_VIP, False)
             )
 
             db.session.add(new_spot)
@@ -118,7 +149,7 @@ class ParkingSpotDetail(Resource):
         try:
             spot = ParkingSpot.query.filter_by(number=spot_number).first()
             check_object_exists(spot, KEY_SPOT.format(spot_number))
-            data = {KEY_NUMBER: spot.number, KEY_IS_OCCUPIED: spot.is_occupied}
+            data = {KEY_NUMBER: spot.number, KEY_IS_OCCUPIED: spot.is_occupied, KEY_VIP: spot.vip}
             return response(data=data, status_code=200)
         except ObjectNotFound as e:
             return response(message=str(e), status_code=e.status_code)
@@ -130,6 +161,7 @@ class ParkingSpotDetail(Resource):
         spot = ParkingSpot.query.get_or_404(spot_number)
         spot.number = data.get(KEY_NUMBER, spot.number)
         spot.is_occupied = data.get(KEY_IS_OCCUPIED, spot.is_occupied)
+        spot.vip = data.get(KEY_VIP, spot.vip)
 
         db.session.commit()
 
@@ -138,8 +170,22 @@ class ParkingSpotDetail(Resource):
 
 @ns.route("/sessions")
 class ParkingSessions(Resource):
+    @ns.param(
+        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
+    )
+    @ns.param(
+        PER_PAGE,
+        type=int,
+        default=PER_PAGE_DEFAULT,
+        description="Number of results per page.",
+    )
     def get(self):
-        sessions = ParkingSession.query.all()
+        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
+        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
+        
+        pagination = ParkingSession.query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        sessions = pagination.items
         data = [
             {
                 KEY_CAR_LICENSE_PLATE: session.car_license_plate,
@@ -224,8 +270,13 @@ class SessionsCheckOut(Resource):
             check_session_status(session)
 
             session.check_out_time = datetime.now()
+            
+            price = DEFAULT_SPOT_PRICE
+            if session.spot.vip:
+                price = VIP_SPOT_PRICE
+            
             session.cost, hours = calculate_cost(
-                session.check_in_time, session.check_out_time
+                session.check_in_time, session.check_out_time, price
             )
 
             session.spot.is_occupied = False
@@ -240,3 +291,12 @@ class SessionsCheckOut(Resource):
             return response(message=str(e), status_code=e.status_code)
         except SessionAlreadyCheckedOut as e:
             return response(message=str(e), status_code=e.status_code)
+
+
+@ns.route("/report/")
+class Report(Resource):
+    def post(self):
+        start_date = response.get("start_date")
+        end_date = response.get("end_date")
+        
+        

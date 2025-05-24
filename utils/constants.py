@@ -7,6 +7,8 @@ ERR_CAR_EXISTS = "Car already exists"
 MSG_SPOT_ADDED = "Parking spot added"
 MSG_SPOT_UPDATED = "Parking spot updated"
 ERR_SPOT_OCCUPIED = "Parking spot is already occupied"
+ERR_OBJECT_NOT_FOUND = "Object {} not found"
+
 
 # Session messages
 MSG_SESSION_STARTED = "Parking session started"
@@ -37,6 +39,12 @@ KEY_ERROR = "error_message"
 KEY_DURATION_HOURS = "duration_hours"
 KEY_CHECK_IN = "check_in"
 KEY_CHECK_OUT = "check_out"
+KEY_VIP = "vip"
 
 # Other
-ERR_OBJECT_NOT_FOUND = "Object {} not found"
+VIP_SPOT_PRICE = 40
+DEFAULT_SPOT_PRICE = 25
+PAGE = "page"
+PER_PAGE = "per_page"
+PAGE_DEFAULT = 1
+PER_PAGE_DEFAULT = 6

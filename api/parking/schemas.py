@@ -19,6 +19,7 @@ def get_parking_spot_model(api):
         {
             "number": fields.Integer(),
             "is_occupied": fields.Boolean(),
+            "vip": fields.Boolean()
         },
     )
 
