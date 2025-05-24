@@ -28,8 +28,3 @@ class ParkingSession(db.Model):
 
     car = db.relationship("Car")
     spot = db.relationship("ParkingSpot")
-
-
-class Report(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    

@@ -40,6 +40,8 @@ KEY_DURATION_HOURS = "duration_hours"
 KEY_CHECK_IN = "check_in"
 KEY_CHECK_OUT = "check_out"
 KEY_VIP = "vip"
+KEY_START_DATE = "start_date"
+KEY_END_DATE = "end_date"
 
 # Other
 VIP_SPOT_PRICE = 40

@@ -11,12 +11,13 @@ from api.parking.errors import (
     SpotAlreadyOccupied,
 )
 from api.parking.models import Car, ParkingSession, ParkingSpot
-from api.parking.schemas import get_car_model, get_parking_spot_model, get_session_model
+from api.parking.schemas import get_car_model, get_parking_spot_model, get_session_model, get_report_model
 from api.parking.utils import (
     calculate_cost,
     check_is_spot_occupied,
     check_object_exists,
     check_session_status,
+    generate_report,
 )
 from api.utils import response
 from utils.constants import *
@@ -295,8 +296,17 @@ class SessionsCheckOut(Resource):
 
 @ns.route("/report/")
 class Report(Resource):
+    @ns.expect(get_report_model(ns))
     def post(self):
-        start_date = response.get("start_date")
-        end_date = response.get("end_date")
-        
-        
+        try:
+            data = request.get_json()
+            start_date = data.get(KEY_START_DATE)
+            end_date = data.get(KEY_END_DATE)
+
+            report = generate_report(start_date, end_date)
+
+            return response(
+                data=report, status_code=200
+            )
+        except Exception as e:
+            return response(message=str(e), status_code=500)
