@@ -19,6 +19,7 @@ def get_parking_spot_model(api):
         {
             "number": fields.Integer(),
             "is_occupied": fields.Boolean(),
+            "vip": fields.Boolean()
         },
     )
 
@@ -29,5 +30,15 @@ def get_session_model(api):
         {
             "car_license_plate": fields.String(),
             "spot_number": fields.Integer(),
+        },
+    )
+
+
+def get_report_model(api):
+    return api.model(
+        "Reports",
+        {
+            "start_date": fields.Date(),
+            "end_date": fields.Date(),
         },
     )

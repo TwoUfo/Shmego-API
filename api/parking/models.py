@@ -15,6 +15,7 @@ class Car(db.Model):
 class ParkingSpot(db.Model):
     number = db.Column(db.Integer, primary_key=True)
     is_occupied = db.Column(db.Boolean, default=False)
+    vip = db.Column(db.Boolean, default=False)
 
 
 class ParkingSession(db.Model):

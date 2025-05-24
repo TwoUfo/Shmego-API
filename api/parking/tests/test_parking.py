@@ -209,7 +209,6 @@ def test_update_spot_1(client):
     assert response.status_code == 200
     assert response.json["message"] == MSG_SPOT_UPDATED
  
-    # Перевірка оновлення
     updated = client.get("/api/parking/spots/0")
     assert updated.status_code == 200
     assert updated.json["data"][KEY_IS_OCCUPIED] is True
