@@ -263,9 +263,12 @@ class SessionsCheckIn(Resource):
 class SessionsCheckOut(Resource):
     def post(self, car_license_plate):
         try:
-            session = ParkingSession.query.filter_by(
-                car_license_plate=car_license_plate
-            ).first()
+            session = (
+                ParkingSession.query
+                .filter_by(car_license_plate=car_license_plate, check_out_time=None)
+                .order_by(ParkingSession.check_in_time.desc())
+                .first()
+            )
 
             check_object_exists(session, KEY_SESSION.format(car_license_plate))
             check_session_status(session)
