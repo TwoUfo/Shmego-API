@@ -42,10 +42,10 @@ class Login(Resource):
 
             session_id = get_session_id()
 
-            access_token = generate_jwt(session_id, expires_in=EIGHT_HOURS)
+            access_token = generate_jwt(session_id, user.role, expires_in=EIGHT_HOURS)
 
             resp = response(
-                message=LOGIN_SUCCESS, status_code=STATUS_OK
+                message=LOGIN_SUCCESS, data={"role": user.role}, status_code=STATUS_OK
             )
             resp = set_cookie(resp, ACCESS_TOKEN, access_token)
 
@@ -57,7 +57,6 @@ class Login(Resource):
                 message=LOGIN_FAILED_INVALID_CREDENTIALS, status_code=STATUS_BAD_REQUEST
             )
         except Exception as e:
-            print(str(e))
             return response(message=LOGIN_FAILED, status_code=STATUS_BAD_REQUEST)
 
 

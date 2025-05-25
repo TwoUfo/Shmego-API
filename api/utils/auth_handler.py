@@ -30,7 +30,7 @@ def set_cookie(response: Response, key: str, value: str) -> Response:
     return response
 
 
-def generate_jwt(session_id: str, expires_in: int = 28800) -> str:
+def generate_jwt(session_id: str, role: str, expires_in: int = 28800) -> str:
     """
     Generates a JWT token with a session ID and an expiration time.
 
@@ -42,6 +42,7 @@ def generate_jwt(session_id: str, expires_in: int = 28800) -> str:
     """
     payload = {
         "session_id": session_id,
+        "role": role,
         "exp": datetime.datetime.now() + datetime.timedelta(seconds=expires_in),
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=ENCODE_ALGORITHM)
