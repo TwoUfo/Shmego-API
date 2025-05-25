@@ -25,24 +25,14 @@ from utils.constants import *
 
 @ns.route("/cars")
 class Cars(Resource):
-    @ns.param(
-        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
-    )
-    @ns.param(
-        PER_PAGE,
-        type=int,
-        default=PER_PAGE_DEFAULT,
-        description="Number of results per page.",
-    )
     def get(self):
-        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
-        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
-        
-        pagination = Car.query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        cars = pagination.items
+        cars = Car.query.all()
         data = [
-            {KEY_LICENSE_PLATE: car.license_plate, KEY_OWNER: car.owner} for car in cars
+            {
+                KEY_LICENSE_PLATE: car.license_plate,
+                KEY_OWNER: car.owner,
+            }
+            for car in cars
         ]
 
         return response(data=data, status_code=200)
@@ -103,26 +93,17 @@ class CarDetail(Resource):
 
 @ns.route("/spots")
 class ParkingSpots(Resource):
-    @ns.param(
-        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
-    )
-    @ns.param(
-        PER_PAGE,
-        type=int,
-        default=PER_PAGE_DEFAULT,
-        description="Number of results per page.",
-    )
     def get(self):
-        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
-        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
-        
-        pagination = ParkingSpot.query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        spots = pagination.items
+        spots = ParkingSpot.query.all()
         data = [
-            {KEY_NUMBER: spot.number, KEY_IS_OCCUPIED: spot.is_occupied, KEY_VIP: spot.vip}
+            {
+                KEY_NUMBER: spot.number,
+                KEY_IS_OCCUPIED: spot.is_occupied,
+                KEY_VIP: spot.vip,
+            }
             for spot in spots
         ]
+
         return response(data=data, status_code=200)
 
     @ns.expect(get_parking_spot_model(ns))
@@ -171,22 +152,8 @@ class ParkingSpotDetail(Resource):
 
 @ns.route("/sessions")
 class ParkingSessions(Resource):
-    @ns.param(
-        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
-    )
-    @ns.param(
-        PER_PAGE,
-        type=int,
-        default=PER_PAGE_DEFAULT,
-        description="Number of results per page.",
-    )
     def get(self):
-        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
-        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
-        
-        pagination = ParkingSession.query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        sessions = pagination.items
+        sessions = ParkingSession.query.all()
         data = [
             {
                 KEY_CAR_LICENSE_PLATE: session.car_license_plate,
