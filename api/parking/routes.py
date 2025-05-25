@@ -19,7 +19,7 @@ from api.parking.utils import (
     check_session_status,
     generate_report,
 )
-from api.utils import response
+from api.utils.response import response
 from utils.constants import *
 
 
