@@ -79,10 +79,8 @@ def login_required(fn: Callable) -> Callable:
     @wraps(fn)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         token: Optional[str] = request.cookies.get("access_token")
-        print(token)
         
         payload = decode_jwt(token)
-        print(payload)
         if not payload:
             
             return response(message=SESSION_EXPIRED, status_code=STATUS_UNAUTHORIZED)
