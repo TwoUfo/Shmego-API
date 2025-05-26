@@ -19,12 +19,15 @@ from api.parking.utils import (
     check_session_status,
     generate_report,
 )
+from api.utils.auth_handler import admin_required, login_required
 from api.utils.response import response
 from utils.constants import *
 
 
+
 @ns.route("/cars")
 class Cars(Resource):
+    @login_required
     def get(self):
         cars = Car.query.all()
         data = [
@@ -38,7 +41,7 @@ class Cars(Resource):
         return response(data=data, status_code=200)
     
     
-    
+    @login_required
     @ns.expect(get_car_model(ns))
     def post(self):
         try:
@@ -61,6 +64,8 @@ class Cars(Resource):
 
 @ns.route("/cars/<string:car_license_plate>")
 class CarDetail(Resource):
+
+    @login_required
     def get(self, car_license_plate):
         try:
             car = Car.query.filter_by(license_plate=car_license_plate).first()
@@ -77,6 +82,7 @@ class CarDetail(Resource):
             return response(message=str(e), status_code=e.status_code)
 
     @ns.expect(get_car_model(ns))
+    @login_required
     def put(self, car_license_plate):
         data = request.get_json()
 
@@ -93,6 +99,7 @@ class CarDetail(Resource):
 
 @ns.route("/spots")
 class ParkingSpots(Resource):
+    @login_required
     def get(self):
         spots = ParkingSpot.query.all()
         data = [
@@ -107,6 +114,7 @@ class ParkingSpots(Resource):
         return response(data=data, status_code=200)
 
     @ns.expect(get_parking_spot_model(ns))
+    @login_required
     def post(self):
         try:
             data = request.get_json()
@@ -127,6 +135,7 @@ class ParkingSpots(Resource):
 
 @ns.route("/spots/<int:spot_number>")
 class ParkingSpotDetail(Resource):
+    @login_required
     def get(self, spot_number):
         try:
             spot = ParkingSpot.query.filter_by(number=spot_number).first()
@@ -137,6 +146,7 @@ class ParkingSpotDetail(Resource):
             return response(message=str(e), status_code=e.status_code)
 
     @ns.expect(get_parking_spot_model(ns))
+    @login_required
     def put(self, spot_number):
         data = request.get_json()
 
@@ -152,6 +162,7 @@ class ParkingSpotDetail(Resource):
 
 @ns.route("/sessions")
 class ParkingSessions(Resource):
+    @login_required
     def get(self):
         sessions = ParkingSession.query.all()
         data = [
@@ -171,7 +182,9 @@ class ParkingSessions(Resource):
 
 @ns.route("/sessions/<int:session_id>")
 class ParkingSessionDetail(Resource):
+    @login_required
     def get(self, session_id):
+        
         try:
             session = ParkingSession.query.get(session_id)
             check_object_exists(session, KEY_SESSION)
@@ -191,6 +204,7 @@ class ParkingSessionDetail(Resource):
 @ns.route("/sessions/check-in")
 class SessionsCheckIn(Resource):
     @ns.expect(get_session_model(ns))
+    @login_required
     def post(self):
         try:
             data = request.get_json()
@@ -228,6 +242,7 @@ class SessionsCheckIn(Resource):
 
 @ns.route("/sessions/check-out/<string:car_license_plate>")
 class SessionsCheckOut(Resource):
+    @login_required
     def post(self, car_license_plate):
         try:
             session = (
@@ -266,6 +281,7 @@ class SessionsCheckOut(Resource):
 
 @ns.route("/report/")
 class Report(Resource):
+    @admin_required
     @ns.expect(get_report_model(ns))
     def post(self):
         try:
