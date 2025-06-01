@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from flask_sqlalchemy import SQLAlchemy
-
 from api import db
 
 
@@ -28,8 +26,3 @@ class ParkingSession(db.Model):
 
     car = db.relationship("Car")
     spot = db.relationship("ParkingSpot")
-
-
-class Report(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    

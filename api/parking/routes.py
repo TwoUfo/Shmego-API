@@ -11,43 +11,37 @@ from api.parking.errors import (
     SpotAlreadyOccupied,
 )
 from api.parking.models import Car, ParkingSession, ParkingSpot
-from api.parking.schemas import get_car_model, get_parking_spot_model, get_session_model
+from api.parking.schemas import get_car_model, get_parking_spot_model, get_session_model, get_report_model
 from api.parking.utils import (
     calculate_cost,
     check_is_spot_occupied,
     check_object_exists,
     check_session_status,
+    generate_report,
 )
-from api.utils import response
+from api.utils.auth_handler import admin_required, login_required
+from api.utils.response import response
 from utils.constants import *
+
 
 
 @ns.route("/cars")
 class Cars(Resource):
-    @ns.param(
-        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
-    )
-    @ns.param(
-        PER_PAGE,
-        type=int,
-        default=PER_PAGE_DEFAULT,
-        description="Number of results per page.",
-    )
+    @login_required
     def get(self):
-        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
-        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
-        
-        pagination = Car.query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        cars = pagination.items
+        cars = Car.query.all()
         data = [
-            {KEY_LICENSE_PLATE: car.license_plate, KEY_OWNER: car.owner} for car in cars
+            {
+                KEY_LICENSE_PLATE: car.license_plate,
+                KEY_OWNER: car.owner,
+            }
+            for car in cars
         ]
 
         return response(data=data, status_code=200)
     
     
-    
+    @login_required
     @ns.expect(get_car_model(ns))
     def post(self):
         try:
@@ -70,6 +64,8 @@ class Cars(Resource):
 
 @ns.route("/cars/<string:car_license_plate>")
 class CarDetail(Resource):
+
+    @login_required
     def get(self, car_license_plate):
         try:
             car = Car.query.filter_by(license_plate=car_license_plate).first()
@@ -86,6 +82,7 @@ class CarDetail(Resource):
             return response(message=str(e), status_code=e.status_code)
 
     @ns.expect(get_car_model(ns))
+    @login_required
     def put(self, car_license_plate):
         data = request.get_json()
 
@@ -102,29 +99,22 @@ class CarDetail(Resource):
 
 @ns.route("/spots")
 class ParkingSpots(Resource):
-    @ns.param(
-        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
-    )
-    @ns.param(
-        PER_PAGE,
-        type=int,
-        default=PER_PAGE_DEFAULT,
-        description="Number of results per page.",
-    )
+    @login_required
     def get(self):
-        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
-        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
-        
-        pagination = ParkingSpot.query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        spots = pagination.items
+        spots = ParkingSpot.query.all()
         data = [
-            {KEY_NUMBER: spot.number, KEY_IS_OCCUPIED: spot.is_occupied, KEY_VIP: spot.vip}
+            {
+                KEY_NUMBER: spot.number,
+                KEY_IS_OCCUPIED: spot.is_occupied,
+                KEY_VIP: spot.vip,
+            }
             for spot in spots
         ]
+
         return response(data=data, status_code=200)
 
     @ns.expect(get_parking_spot_model(ns))
+    @login_required
     def post(self):
         try:
             data = request.get_json()
@@ -145,6 +135,7 @@ class ParkingSpots(Resource):
 
 @ns.route("/spots/<int:spot_number>")
 class ParkingSpotDetail(Resource):
+    @login_required
     def get(self, spot_number):
         try:
             spot = ParkingSpot.query.filter_by(number=spot_number).first()
@@ -155,6 +146,7 @@ class ParkingSpotDetail(Resource):
             return response(message=str(e), status_code=e.status_code)
 
     @ns.expect(get_parking_spot_model(ns))
+    @login_required
     def put(self, spot_number):
         data = request.get_json()
 
@@ -170,22 +162,9 @@ class ParkingSpotDetail(Resource):
 
 @ns.route("/sessions")
 class ParkingSessions(Resource):
-    @ns.param(
-        PAGE, type=int, default=PAGE_DEFAULT, description="Page number for pagination."
-    )
-    @ns.param(
-        PER_PAGE,
-        type=int,
-        default=PER_PAGE_DEFAULT,
-        description="Number of results per page.",
-    )
+    @login_required
     def get(self):
-        page = request.args.get(PAGE, PAGE_DEFAULT, type=int)
-        per_page = request.args.get(PER_PAGE, PER_PAGE_DEFAULT, type=int)
-        
-        pagination = ParkingSession.query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        sessions = pagination.items
+        sessions = ParkingSession.query.all()
         data = [
             {
                 KEY_CAR_LICENSE_PLATE: session.car_license_plate,
@@ -203,7 +182,9 @@ class ParkingSessions(Resource):
 
 @ns.route("/sessions/<int:session_id>")
 class ParkingSessionDetail(Resource):
+    @login_required
     def get(self, session_id):
+        
         try:
             session = ParkingSession.query.get(session_id)
             check_object_exists(session, KEY_SESSION)
@@ -223,6 +204,7 @@ class ParkingSessionDetail(Resource):
 @ns.route("/sessions/check-in")
 class SessionsCheckIn(Resource):
     @ns.expect(get_session_model(ns))
+    @login_required
     def post(self):
         try:
             data = request.get_json()
@@ -260,11 +242,15 @@ class SessionsCheckIn(Resource):
 
 @ns.route("/sessions/check-out/<string:car_license_plate>")
 class SessionsCheckOut(Resource):
+    @login_required
     def post(self, car_license_plate):
         try:
-            session = ParkingSession.query.filter_by(
-                car_license_plate=car_license_plate
-            ).first()
+            session = (
+                ParkingSession.query
+                .filter_by(car_license_plate=car_license_plate, check_out_time=None)
+                .order_by(ParkingSession.check_in_time.desc())
+                .first()
+            )
 
             check_object_exists(session, KEY_SESSION.format(car_license_plate))
             check_session_status(session)
@@ -295,8 +281,18 @@ class SessionsCheckOut(Resource):
 
 @ns.route("/report/")
 class Report(Resource):
+    @admin_required
+    @ns.expect(get_report_model(ns))
     def post(self):
-        start_date = response.get("start_date")
-        end_date = response.get("end_date")
-        
-        
+        try:
+            data = request.get_json()
+            start_date = data.get(KEY_START_DATE)
+            end_date = data.get(KEY_END_DATE)
+
+            report = generate_report(start_date, end_date)
+
+            return response(
+                data=report, status_code=200
+            )
+        except Exception as e:
+            return response(message=str(e), status_code=500)

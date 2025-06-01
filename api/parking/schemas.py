@@ -32,3 +32,13 @@ def get_session_model(api):
             "spot_number": fields.Integer(),
         },
     )
+
+
+def get_report_model(api):
+    return api.model(
+        "Reports",
+        {
+            "start_date": fields.Date(),
+            "end_date": fields.Date(),
+        },
+    )

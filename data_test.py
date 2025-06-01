@@ -3,12 +3,24 @@ from api.parking.models import Car, ParkingSpot, ParkingSession
 from datetime import datetime, timedelta
 import random
 from app import create_app
+from api.auth.models import User
+import random
+import string
 
 app = create_app()
+
+def generate_random_id(length=8):
+    return ''.join(random.choices(string.ascii_letters, k=length))
 
 with app.app_context():
     db.drop_all()
     db.create_all()
+    
+    user1 = User(id=generate_random_id(), role='op')
+    user2 = User(id=generate_random_id(), role='admin')
+
+    db.session.add_all([user1, user2])
+    db.session.commit()
 
     cars = [
         Car(license_plate=f"AA{1000+i}BB", brand="Toyota", model=f"Model {i}", owner=f"Owner {i}")
